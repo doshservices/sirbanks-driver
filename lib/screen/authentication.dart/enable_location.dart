@@ -85,7 +85,7 @@ class _EnableLocationScreenState extends State<EnableLocationScreen> {
                       titleColor: Colors.white,
                       buttonColor: Color(0xff24414D),
                       onPress: () {
-                        Navigator.of(context).pushNamed(kSignupScreen);
+                        Navigator.of(context).pushNamed(kLoginScreen);
                         // Navigator.of(context).pushNamedAndRemoveUntil(
                         //     kDashbord, (route) => false);
                       },
@@ -100,7 +100,7 @@ class _EnableLocationScreenState extends State<EnableLocationScreen> {
                       children: <Widget>[
                         GestureDetector(
                           onTap: (){
-                            Navigator.of(context).pushNamed(kSignupScreen);
+                            Navigator.of(context).pushNamed(kLoginScreen);
                           },
                           child: Text(
                             'Skip for now',

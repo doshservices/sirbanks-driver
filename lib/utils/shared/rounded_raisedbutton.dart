@@ -35,7 +35,7 @@ class RoundedRaisedButton extends StatelessWidget {
                 style: TextStyle(color: titleColor, fontSize: 16),
               ),
         color: buttonColor,
-        disabledColor: Theme.of(context).primaryColor.withOpacity(0.7),
+        disabledColor: buttonColor,
         onPressed: isLoading ? null : this.onPress,
       ),
     );

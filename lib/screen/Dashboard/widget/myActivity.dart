@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sirbanks_driver/provider/auth.dart';
 // import '../../theme/style.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
 
@@ -24,6 +26,7 @@ class MyActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<Auth>(context, listen: true).user;
     return Container(
       padding: EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
       height: 270,
@@ -64,7 +67,7 @@ class MyActivity extends StatelessWidget {
                           height: 5,
                         ),
                         Text(
-                          'Balogun Rasheed',
+                          user.phone,
                           style: TextStyle(
                               color: Color(0xff24414D),
                               fontWeight: FontWeight.w600,

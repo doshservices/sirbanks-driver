@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sirbanks_driver/provider/auth.dart';
 
 import '../../constants.dart';
 
@@ -43,6 +45,7 @@ class _MenuScreensState extends State<MenuScreens> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<Auth>(context, listen: true);
     return Drawer(
       child: Column(
         children: <Widget>[
@@ -118,7 +121,8 @@ class _MenuScreensState extends State<MenuScreens> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                'Balogun Rasheed',
+                                auth.user.phone,
+                                // 'Balogun Rasheed',
                                 style: TextStyle(
                                     fontSize: 20,
                                     color: Colors.white,
@@ -282,7 +286,8 @@ class _MenuScreensState extends State<MenuScreens> {
                                 children: <Widget>[
                                   new Expanded(
                                     flex: 1,
-                                    child: Image.asset('assets/icons/Vectorhome.png'),
+                                    child: Image.asset(
+                                        'assets/icons/Vectorhome.png'),
                                   ),
                                   new Expanded(
                                     flex: 3,
@@ -309,7 +314,8 @@ class _MenuScreensState extends State<MenuScreens> {
                                 children: <Widget>[
                                   new Expanded(
                                     flex: 1,
-                                    child: Image.asset('assets/icons/Vectorrequest.png'),
+                                    child: Image.asset(
+                                        'assets/icons/Vectorrequest.png'),
                                   ),
                                   new Expanded(
                                     flex: 3,
@@ -369,7 +375,8 @@ class _MenuScreensState extends State<MenuScreens> {
                                 children: <Widget>[
                                   new Expanded(
                                     flex: 1,
-                                    child: Image.asset('assets/icons/clock.png'),
+                                    child:
+                                        Image.asset('assets/icons/clock.png'),
                                   ),
                                   new Expanded(
                                     flex: 3,
@@ -417,7 +424,8 @@ class _MenuScreensState extends State<MenuScreens> {
                           new GestureDetector(
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.of(context).pushNamed(KInviteFriendScreen);
+                              Navigator.of(context)
+                                  .pushNamed(KInviteFriendScreen);
                             },
                             child: new Container(
                               height: 60.0,
@@ -426,7 +434,8 @@ class _MenuScreensState extends State<MenuScreens> {
                                 children: <Widget>[
                                   new Expanded(
                                     flex: 1,
-                                    child: Image.asset('assets/icons/Vectorinvite.png'),
+                                    child: Image.asset(
+                                        'assets/icons/Vectorinvite.png'),
                                   ),
                                   new Expanded(
                                     flex: 3,
@@ -454,7 +463,8 @@ class _MenuScreensState extends State<MenuScreens> {
                                 children: <Widget>[
                                   new Expanded(
                                     flex: 1,
-                                    child: Image.asset('assets/icons/rsettings.png'),
+                                    child: Image.asset(
+                                        'assets/icons/rsettings.png'),
                                   ),
                                   new Expanded(
                                     flex: 3,
@@ -472,7 +482,9 @@ class _MenuScreensState extends State<MenuScreens> {
                           ),
                           new GestureDetector(
                             onTap: () {
-                              // showAlertDialog(context);
+                              auth.logout();
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  kLoginScreen, (route) => false);
                             },
                             child: new Container(
                               height: 60.0,
@@ -481,7 +493,8 @@ class _MenuScreensState extends State<MenuScreens> {
                                 children: <Widget>[
                                   new Expanded(
                                     flex: 1,
-                                    child: Image.asset('assets/icons/logout.png'),
+                                    child:
+                                        Image.asset('assets/icons/logout.png'),
                                   ),
                                   new Expanded(
                                     flex: 3,
