@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
         errMsg = "";
       });
       Navigator.of(context)
-          .pushNamedAndRemoveUntil(kDashboard, (route) => false);
+          .pushNamedAndRemoveUntil(KCompleteRegistrationScreen, (route) => false);
     } catch (error) {
       if (error.toString().isNotEmpty) {
         _showShackBar(error.toString());

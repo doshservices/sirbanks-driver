@@ -9,20 +9,20 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    startTimer();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   startTimer();
+  // }
 
-  startTimer() async {
-    var duration = Duration(seconds: 4);
-    return Timer(duration, route);
-  }
+  // startTimer() async {
+  //   var duration = Duration(seconds: 4);
+  //   return Timer(duration, route);
+  // }
 
-  route() {
-    Navigator.of(context).popAndPushNamed(kWalkthrough);
-  }
+  // route() {
+  //   Navigator.of(context).popAndPushNamed(kWalkthrough);
+  // }
 
   @override
   Widget build(BuildContext context) {

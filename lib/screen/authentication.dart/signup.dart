@@ -78,34 +78,11 @@ class _SignupScreenState extends State<SignupScreen> {
       print(deviceName);
       await Provider.of<Auth>(context, listen: false)
           .signUp(user, deviceName, deviceUUID);
-       setState(() {
-         _isLoading = false;
-       });
-       Navigator.of(context).pushReplacementNamed(KOtpScreen, arguments: {'phone': user.phone});
-      // showDialog(
-      //     context: context,
-      //     barrierDismissible: false,
-      //     builder: (ctx) {
-      //       return AlertDialog(
-      //         title: Text(
-      //           "Success",
-      //           style: TextStyle(fontWeight: FontWeight.bold),
-      //         ),
-      //         content: Text(
-      //             "Your account has been successfully created. Kindly check your email to verify Account"),
-      //         actions: [
-      //           FlatButton(
-      //             child: Text("Proceed to Login",
-      //                 style: TextStyle(color: Colors.white)),
-      //             color: Theme.of(context).primaryColor,
-      //             onPressed: () {
-      //               Navigator.of(context).pop();
-      //               Navigator.of(context).pushReplacementNamed(kLoginScreen);
-      //             },
-      //           ),
-      //         ],
-      //       );
-      //     });
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context)
+          .pushReplacementNamed(KOtpScreen, arguments: {'phone': user.phone});
     } catch (error) {
       showDialog(
           context: context,
@@ -212,6 +189,82 @@ class _SignupScreenState extends State<SignupScreen> {
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 focusColor: Colors.black,
+                                hintText: "FirstName",
+                                hintStyle: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xffC3BBBB),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              keyboardType: TextInputType.text,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return "FirstName required";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onSaved: (value) {
+                                user.firstName = value;
+                              },
+                            ),
+                            Container(
+                              height: 1,
+                              width: double.infinity,
+                              color: Colors.black,
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Column(
+                          children: [
+                            TextFormField(
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontStyle: FontStyle.normal),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusColor: Colors.black,
+                                hintText: "LastName",
+                                hintStyle: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xffC3BBBB),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              keyboardType: TextInputType.text,
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return "LastName required";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              onSaved: (value) {
+                                user.lastName = value;
+                              },
+                            ),
+                            Container(
+                              height: 1,
+                              width: double.infinity,
+                              color: Colors.black,
+                            )
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Column(
+                          children: [
+                            TextFormField(
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  fontStyle: FontStyle.normal),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusColor: Colors.black,
                                 hintText: "name@example.com",
                                 hintStyle: TextStyle(
                                   fontSize: 16,
@@ -262,27 +315,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                   fontWeight: FontWeight.w400,
                                 ),
                                 contentPadding: EdgeInsets.zero,
-                                // prefix: Row(
-                                //   children: [
-                                //     SizedBox(
-                                //       width: 5,
-                                //     ),
-                                //     Image.asset(
-                                //         'assets/icons/flag.png'),
-                                //     SizedBox(
-                                //       width: 5,
-                                //     ),
-                                //     Icon(Icons.arrow_drop_down),
-                                //     Text('+234', style: TextStyle(color: Colors.black)),
-                                //     SizedBox(
-                                //       width: 5,
-                                //     ),
-                                //   ],
-                                // ),
-                                
                               ),
                               validator: (value) {
-                                String pattern = r'(?=.*?[+])(?=.*?[0-9]).{14,}$';
+                                String pattern =
+                                    r'(?=.*?[+])(?=.*?[0-9]).{14,}$';
                                 RegExp regExp = new RegExp(pattern);
                                 if (value.length == 0) {
                                   return 'Please enter mobile number';

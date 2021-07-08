@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
+import 'package:sirbanks_driver/screen/Dashboard/complete_reg.dart';
 import 'package:sirbanks_driver/screen/Dashboard/contactus/contact_us.dart';
 import 'package:sirbanks_driver/screen/Dashboard/dashboard.dart';
 import 'package:sirbanks_driver/screen/Dashboard/history/history_screen.dart';
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
           ),
           debugShowCheckedModeBanner: false,
                 home: auth.isAuth == true
-                    ? DashboardScreen()
+                    ? CompleteRegistrationScreen()
                     : FutureBuilder(
                         future: auth.tryAutoLogin(),
                         builder: (ctx, authResultSnapShot) =>
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
             KContactUs: (ctx) => ContactUs(),
             KInviteFriendScreen: (ctx) => InviteFriendScreen(),
             KOtpScreen: (ctx) => OtpScreen(),
+            KCompleteRegistrationScreen: (ctx) => CompleteRegistrationScreen(),
           });})
     );
   }

@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sirbanks_driver/model/car_model.dart';
 import 'package:sirbanks_driver/model/http_exception.dart';
 import 'package:sirbanks_driver/model/user.dart';
 import '../config.dart' as config;
@@ -14,6 +16,8 @@ class Auth with ChangeNotifier {
   DateTime _expiryDate;
   String weblink;
   String transactionref;
+  List<CarModel> carvalue = [];
+  List<CarModel> carmodelvalue = [];
 
   User user = User();
 
@@ -37,6 +41,8 @@ class Auth with ChangeNotifier {
 
   Future<void> signUp(User user, derviceName, deviceUUID) async {
     var data = jsonEncode({
+      "firstName": user.firstName,
+      "lastName": user.lastName,
       "email": user.email,
       "password": user.password,
       "phone": user.phone,
@@ -67,8 +73,52 @@ class Auth with ChangeNotifier {
     }
   }
 
+  Future<void> completeReg(make, model, year, licenceNo, issueDate, expDate, color, numberPlate, avatar, licence, insurance, vehiclePaper) async {
+    var data = jsonEncode({
+      "make": make,
+      "model": model,
+      "year": year,
+      "licenceNo": licenceNo,
+      "issueDate": issueDate,
+      "expDate": expDate,
+      "color": color,
+      "numberPlate": numberPlate,
+      "avatar": avatar,
+      "licence": licence,
+      "insurance": insurance,
+      "vehiclePaper": vehiclePaper
+    });
+
+    print(data);
+    try {
+      final response = await http.put(
+        "${config.baseUrl}/drivers/profile_completion",
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer $token"
+        },
+        body: data,
+      );
+      var resData = jsonDecode(response.body);
+
+      print(resData);
+      if (resData["status"] != "success") {
+        if (resData["status"] == "error") {
+          throw HttpException(resData["message"]);
+        } else {
+          throw HttpException(resData["error"]);
+        }
+      }
+
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
   Future<void> signIn(String email, String password) async {
-    var data = jsonEncode({"phoneOrEmail": email.toString(), "password": password.toString()});
+    var data = jsonEncode(
+        {"phoneOrEmail": email.toString(), "password": password.toString()});
     try {
       final response = await http.post(
         "${config.baseUrl}/auth/driver/login",
@@ -128,11 +178,7 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> verifyOtp(String phone, String phoneToken) async {
-    var data = jsonEncode({
-      "phone": "+2348141240575", 
-      "otp": phoneToken
-      }
-    );
+    var data = jsonEncode({"phone": phone, "otp": phoneToken});
 
     try {
       final response = await http.post(
@@ -144,7 +190,7 @@ class Auth with ChangeNotifier {
 
       print(resData);
       print(data);
-      if (resData['status']!="success") {
+      if (resData['status'] != "success") {
         throw HttpException(resData["message"]);
       }
 
@@ -174,6 +220,56 @@ class Auth with ChangeNotifier {
       }
 
       notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<void> getCountryList() async {
+    try {
+      carvalue = [];
+      final response = await http.get(
+        "${config.baseUrl}/makes/",
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer $token"
+        },
+      );
+      var resData = jsonDecode(response.body.toString());
+      List<dynamic> entities = resData["data"];
+      entities.forEach((entity) {
+        CarModel country = CarModel();
+        country.id = entity['id'];
+        country.name = entity['name'];
+        carvalue.add(country);
+      });
+
+       notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  Future<void> getcarModel(id) async {
+    try {
+      carmodelvalue = [];
+      final response = await http.get(
+        "${config.baseUrl}/makes/$id/models",
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer $token"
+        },
+      );
+      var resData = jsonDecode(response.body.toString());
+      List<dynamic> entities = resData["data"]["models"];
+      entities.forEach((entity) {
+        CarModel country = CarModel();
+        country.id = entity['id'];
+        country.name = entity['name'];
+        carmodelvalue.add(country);
+      });
+
+       notifyListeners();
     } catch (error) {
       throw error;
     }
