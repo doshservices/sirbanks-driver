@@ -141,26 +141,12 @@ class Auth with ChangeNotifier {
 
         userdata.phone = resData["data"]["phone"];
         userdata.email = resData["data"]["email"];
-        // userdata.pictureUrl = resData["data"]["user"]["avatar"].toString();
-        user = userdata;
+        userdata.isProfileCompleted = resData["data"]['isProfileCompleted'];
+        userdata.isVerified = resData["data"]['isVerified'];
 
-        // _autoLogout();
+        user = userdata;
       }
       print("here is $token");
-      //   "status": "success",
-      // "data": {
-      //     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwY2MwNTczOGE0OGU0NmFmZmE5MGE4NiIsInJvbGUiOiJkcml2ZXIiLCJpYXQiOjE2MjM5OTY5MDcsImV4cCI6MTY1NTUzMjkwN30.W4OBfXn_7jEY9zQwOM1BTjYGPqSEO-IYONeW9fAZ6DE",
-      //     "user": {
-      //         "id": "60cc05738a48e46affa90a86",
-      //         "email": "ikechukwu0995@gmail.com",
-      //         "phone": "+2349027755627",
-      //         "firstName": "chiwendu",
-      //         "lastName": "ot",
-      //         "avatar": "https://res.cloudinary.com/viola/image/upload/v1575029224/wb9azacz6mblteapgtr9.png",
-      //         "isEmailVerified": true,
-      //         "onboardingStatus": "personal_details"
-      //     }
-      // }
 
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode({
@@ -168,6 +154,8 @@ class Auth with ChangeNotifier {
         'userId': user.id,
         "userPhone": user.phone,
         "userEmail": user.email,
+        "isProfileCompleted" : user.isProfileCompleted,
+        "isVerified" : user.isVerified
         // "pictureUrl": user.pictureUrl,
       });
       prefs.setString("userData", userData);
@@ -289,6 +277,8 @@ class Auth with ChangeNotifier {
       user.id = extractedUserData["userId"];
       user.email = extractedUserData["userEmail"];
       user.phone = extractedUserData["userPhone"];
+      user.isVerified = extractedUserData["isVerified"];
+      user.isProfileCompleted = extractedUserData["isProfileCompleted"];
       // user.pictureUrl = extractedUserData["pictureUrl"];
       notifyListeners();
       // _autoLogout();

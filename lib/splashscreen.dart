@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/icons/logo.png"),
+            Image.asset("assets/icons/logo.jpg"),
             Text(
               'Driver App',
               style: TextStyle(

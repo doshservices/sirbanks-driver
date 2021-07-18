@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../constants.dart';
+
 class WalletScreen extends StatefulWidget {
   @override
   _WalletScreenState createState() => _WalletScreenState();
@@ -147,6 +149,27 @@ class _WalletScreenState extends State<WalletScreen> {
                 ],
               ),
             ),
+          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(
+          //     horizontal: 10,
+          //   ),
+          //   child: Card(
+          //       child: ListTile(
+          //           onTap: () {
+          //             Navigator.of(context).pushNamed(KPaymentMethod);
+          //           },
+          //           title: Text(
+          //             'Payment method',
+          //             style: TextStyle(
+          //                 fontSize: 18,
+          //                 color: Colors.black,
+          //                 fontWeight: FontWeight.w700),
+          //           ),
+          //           trailing: Icon(Icons.keyboard_arrow_right))),
+          // ),
+          SizedBox(
+            height: 5,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(

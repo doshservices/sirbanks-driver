@@ -11,6 +11,8 @@ import 'package:sirbanks_driver/screen/Dashboard/profile/profile_screen.dart';
 import 'package:sirbanks_driver/screen/Dashboard/review/review_screen.dart';
 import 'package:sirbanks_driver/screen/Dashboard/settings/settings.dart';
 import 'package:sirbanks_driver/screen/Dashboard/termandcondiction/termandcondiction.dart';
+import 'package:sirbanks_driver/screen/Dashboard/wallet/card_payment_screen.dart';
+import 'package:sirbanks_driver/screen/Dashboard/wallet/payment_method.dart';
 import 'package:sirbanks_driver/screen/Dashboard/wallet/wallet_screen.dart';
 import 'package:sirbanks_driver/screen/authentication.dart/login.dart';
 import 'package:sirbanks_driver/screen/authentication.dart/otp_screen.dart';
@@ -39,6 +41,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<Auth>(builder: (ctx, auth, _) {
             print(auth.isAuth);
+            print("55555555"+auth.user.isVerified.toString());
             return 
       MaterialApp(
           title: 'Sirbanks Driver',
@@ -47,8 +50,8 @@ class MyApp extends StatelessWidget {
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
           debugShowCheckedModeBanner: false,
-                home: auth.isAuth == true
-                    ? CompleteRegistrationScreen()
+                home: auth.isAuth == true 
+                    ? auth.user.isProfileCompleted == false && auth.user.isVerified ==false ? CompleteRegistrationScreen() : DashboardScreen()
                     : FutureBuilder(
                         future: auth.tryAutoLogin(),
                         builder: (ctx, authResultSnapShot) =>
@@ -75,6 +78,8 @@ class MyApp extends StatelessWidget {
             KInviteFriendScreen: (ctx) => InviteFriendScreen(),
             KOtpScreen: (ctx) => OtpScreen(),
             KCompleteRegistrationScreen: (ctx) => CompleteRegistrationScreen(),
+            KPaymentMethod : (ctx) => PaymentMethod(),
+            KCardPayment : (ctx) => CardPayment(),
           });})
     );
   }
