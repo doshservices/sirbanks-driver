@@ -1,4 +1,4 @@
-package com.sirbanks.sirbanks_taxi_driver
+package com.sirbanks.sirbanks_driver
 
 import io.flutter.embedding.android.FlutterActivity
 
