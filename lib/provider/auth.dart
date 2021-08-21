@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -7,7 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sirbanks_driver/model/car_model.dart';
 import 'package:sirbanks_driver/model/http_exception.dart';
 import 'package:sirbanks_driver/model/user.dart';
+import 'package:socket_io_client/socket_io_client.dart';
+import 'package:sirbanks_driver/utils/socket_utils.dart';
 import '../config.dart' as config;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class Auth with ChangeNotifier {
   String _token;
@@ -18,6 +20,7 @@ class Auth with ChangeNotifier {
   String transactionref;
   List<CarModel> carvalue = [];
   List<CarModel> carmodelvalue = [];
+  static SocketUtils socketUtils;
 
   User user = User();
 
@@ -73,7 +76,52 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<void> completeReg(make, model, year, licenceNo, issueDate, expDate, color, numberPlate, avatar, licence, insurance, vehiclePaper) async {
+  static initSocket() {
+    if (null == socketUtils) {
+      socketUtils = SocketUtils();
+    }
+  }
+
+  Future<void> connectToServer() async {
+    // final user = Provider.of<Auth>(context, listen: false);
+    print(token);
+    try {
+      // Configure socket transports must be sepecified
+       IO.Socket socket = IO.io(
+          'https://sirbanks.herokuapp.com',
+          OptionBuilder().setTransports(['websocket']) // for Flutter or Dart VM
+              .setExtraHeaders({'query': 'Bearer $token'}) // optional
+              .build());
+      
+      socket.connect();
+      print(socket.connect.toString() + "chrrrrrrrr");
+      print('object');
+      socket.onConnect((_) {
+        print('connect ik');
+        // socket.emitWithAck('msg', 'init', ack: (data) {
+        //   print('ack $data');
+        //   if (data != null) {
+        //     print('from server $data');
+        //   } else {
+        //     print("Null");
+        //   }
+        // });
+      });
+
+      // Handle socket events
+      socket.on('connect', (_) => print('connect: ${socket.id} chris'));
+      // socket.on('location', handleLocationListen);
+      // socket.on('typing', handleTyping);
+      // socket.on('message', handleMessage);
+      // socket.on('disconnect', (_) => print('disconnect form server'));
+      socket.on('fromServer', (_) => print(_));
+    } catch (e) {
+      print(e.toString() + "hhjkkkhjkhjhjhj");
+    }
+  }
+
+  Future<void> completeReg(make, model, year, licenceNo, issueDate, expDate,
+      color, numberPlate, avatar, licence, insurance, vehiclePaper) async {
     var data = jsonEncode({
       "make": make,
       "model": model,
@@ -154,8 +202,8 @@ class Auth with ChangeNotifier {
         'userId': user.id,
         "userPhone": user.phone,
         "userEmail": user.email,
-        "isProfileCompleted" : user.isProfileCompleted,
-        "isVerified" : user.isVerified
+        "isProfileCompleted": user.isProfileCompleted,
+        "isVerified": user.isVerified
         // "pictureUrl": user.pictureUrl,
       });
       prefs.setString("userData", userData);
@@ -232,12 +280,12 @@ class Auth with ChangeNotifier {
         carvalue.add(country);
       });
 
-       notifyListeners();
+      notifyListeners();
     } catch (error) {
       throw error;
     }
   }
-  
+
   Future<void> getcarModel(id) async {
     try {
       carmodelvalue = [];
@@ -257,7 +305,7 @@ class Auth with ChangeNotifier {
         carmodelvalue.add(country);
       });
 
-       notifyListeners();
+      notifyListeners();
     } catch (error) {
       throw error;
     }

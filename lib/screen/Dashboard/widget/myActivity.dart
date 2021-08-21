@@ -97,7 +97,7 @@ class MyActivity extends StatelessWidget {
                           height: 5,
                         ),
                         Text(
-                          "N43,000",
+                          "N0.00",
                           style: TextStyle(
                               color: Color(0xff24414D),
                               fontWeight: FontWeight.w600,

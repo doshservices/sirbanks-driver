@@ -125,7 +125,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           height: 15,
                         ),
                         Text(
-                          'N43,500',
+                          'N0.00',
                           style: TextStyle(
                               fontSize: 24,
                               color: Colors.black,
@@ -190,7 +190,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 horizontal: 15,
               ),
               child: ListView.builder(
-                  itemCount: 7,
+                  itemCount: 0,
                   itemBuilder: (context, i) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5),

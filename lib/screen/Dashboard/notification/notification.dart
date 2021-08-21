@@ -15,12 +15,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(
-            Icons.menu,
+            Icons.arrow_back,
             size: 30,
             color: Colors.black,
           ),
           onPressed: () {
-            // _scaffoldKey.currentState.openDrawer();
+            Navigator.of(context).pop();
           },
         ),
       ),

@@ -17,12 +17,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
         backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(
-            Icons.menu,
+            Icons.arrow_back,
             size: 30,
             color: Colors.black,
           ),
           onPressed: () {
-            // _scaffoldKey.currentState.openDrawer();
+            Navigator.of(context).pop();
           },
         ),
       ),
@@ -185,7 +185,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   horizontal: 10,
                 ),
                 child: ListView.builder(
-                    itemCount: 7,
+                    itemCount: 0,
                     itemBuilder: (context, i) {
                       return Container(
                         color: Colors.white,

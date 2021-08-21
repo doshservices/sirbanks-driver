@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String _userEmail = "";
   String _userPassword = "";
   bool _isLoading = false;
+  bool _hidePassword = true, _hideConfirmPassword = true;
 
   _showShackBar(errorMessage) {
     final snackBar = new SnackBar(
@@ -48,12 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
         errMsg = "";
       });
       final user = Provider.of<Auth>(context, listen: false).user;
-      if(user.isVerified == false && user.isProfileCompleted == false){
-        Navigator.of(context).pushNamedAndRemoveUntil(KCompleteRegistrationScreen, (route) => false);
-      }else{
-        Navigator.of(context).pushNamedAndRemoveUntil(kDashboard, (route) => false);
+      if (user.isVerified == false && user.isProfileCompleted == false) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            KCompleteRegistrationScreen, (route) => false);
+      } else {
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil(kDashboard, (route) => false);
       }
-      
     } catch (error) {
       if (error.toString().isNotEmpty) {
         _showShackBar(error.toString());
@@ -168,19 +170,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 30),
                         TextFormField(
+                          obscureText: _hidePassword,
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               fontStyle: FontStyle.normal),
                           decoration: InputDecoration(
-                            hintText: "Password",
-                            hintStyle: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xffC3BBBB),
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                              hintText: "Password",
+                              hintStyle: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xffC3BBBB),
+                                fontWeight: FontWeight.w400,
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _hidePassword = !_hidePassword;
+                                  });
+                                },
+                                icon: _hidePassword
+                                    ? Icon(Icons.visibility_off,
+                                        color: Colors.grey)
+                                    : Icon(
+                                        Icons.visibility,
+                                        color: Colors.grey,
+                                      ),
+                              )),
                           validator: (value) {
                             if (value.isEmpty) {
                               return "Required";
@@ -191,7 +207,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             _userPassword = value;
                           },
                         ),
-                        
                       ],
                     ),
                   ),

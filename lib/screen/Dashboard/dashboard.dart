@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-// import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geocoder/model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
-import 'package:sirbanks_driver/constants.dart';
-import 'package:sirbanks_driver/model/mapTypeModel.dart';
-// import 'package:permission_handler/permission_handler.dart';
+import 'package:intl/intl.dart';
+import 'package:location/location.dart';
+import 'package:provider/provider.dart';
+import 'package:sirbanks_driver/provider/auth.dart';
 import 'package:sirbanks_driver/screen/Dashboard/widget/myActivity.dart';
 import 'package:sirbanks_driver/utils/shared/appDrawer.dart';
 import 'package:sirbanks_driver/utils/shared/rounded_raisedbutton.dart';
@@ -22,51 +23,68 @@ class _DashboardScreenState extends State<DashboardScreen>
   Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
   CameraPosition _kGooglePlex =
       CameraPosition(target: LatLng(6.537216, 3.348890), zoom: 16);
+  LocationData _currentPosition;
+  String _address, _dateTime;
+  double lat, long;
 
   CircleId selectedCircle;
-  GoogleMapController _mapController;
+  // GoogleMapController _mapController;
 
   String currentLocationName;
   String newLocationName;
-  String _placemark = '';
+  // String _placemark = '';
   GoogleMapController mapController;
-  bool checkPlatform = Platform.isIOS;
-  double distance = 0;
-  bool nightMode = false;
-  VoidCallback showPersBottomSheetCallBack;
-  List<MapTypeModel> sampleData = new List<MapTypeModel>();
-  PersistentBottomSheetController _controller;
-  Map<PolylineId, Polyline> _polyLines = <PolylineId, Polyline>{};
+  Location location = Location();
+  GoogleMapController _controller;
+
   PolylineId selectedPolyline;
   bool isShowDefault = false;
-  
+
   List<bool> isSelected;
   bool availableStatus;
 
   String driverId;
   String token, lastName, firstName, phonepref, avatar;
-  var riderRequestData;
-  var requestTimeout;
-  var requestAccepted;
-  var tripcancledByrider;
-  String rideTripId;
+  LatLng _initialcameraposition = LatLng(6.465422, 3.406448);
+
+  _connectSocket() {
+    final auth = Provider.of<Auth>(context, listen: false);
+    Future.delayed(Duration(seconds: 2), () async {
+      Auth.initSocket();
+      await Auth.socketUtils.initSocket(auth.token, auth.user.id);
+      Auth.socketUtils.connectToSocket();
+      Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
+      Auth.socketUtils.listenError();
+    });
+  }
+
+  onConnect(data) {
+    print('********** Connected : ${data.toString()}');
+  }
+
+  onConnectError(data) {
+    print('*********** onConnectError : ${data.toString()}');
+  }
+
+  onConnectTimeout(data) {
+    print('********** onConnectTimeout : ${data.toString()}');
+  }
+
+  onError(data) {
+    print('********* onError : ${data.toString()}');
+  }
+
+  onDisconnect(data) {
+    Auth.socketUtils.socket.close();
+    print('********* onDisconnect : ${data.toString()}');
+  }
 
   @override
   void initState() {
+    getLoc();
+    _connectSocket();
     super.initState();
     isSelected = [true, false];
-    sampleData.add(MapTypeModel(1, true, 'assets/style/maptype_nomal.png',
-        'Nomal', 'assets/style/nomal_mode.json'));
-    sampleData.add(MapTypeModel(2, false, 'assets/style/maptype_silver.png',
-        'Silver', 'assets/style/sliver_mode.json'));
-    sampleData.add(MapTypeModel(3, false, 'assets/style/maptype_dark.png',
-        'Dark', 'assets/style/dark_mode.json'));
-    sampleData.add(MapTypeModel(4, false, 'assets/style/maptype_night.png',
-        'Night', 'assets/style/night_mode.json'));
-    sampleData.add(MapTypeModel(5, false, 'assets/style/maptype_netro.png',
-        'Netro', 'assets/style/netro_mode.json'));
-    sampleData.add(MapTypeModel(6, false, 'assets/style/maptype_aubergine.png',
-        'Aubergine', 'assets/style/aubergine_mode.json'));
   }
 
   @override
@@ -90,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       child: Row(
                         children: [
                           Text(
-                            'Logout?',
+                            'Exit?',
                             style: TextStyle(
                                 fontSize: 24,
                                 color: Colors.white,
@@ -101,7 +119,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                             width: 20,
                           ),
                           Text(
-                            'Confirm Logout',
+                            '',
                             style: TextStyle(
                                 fontSize: 15,
                                 color: Colors.white,
@@ -118,7 +136,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       child: Row(
                         children: [
                           Text(
-                            'You will now  be in Offline mode if you proceed',
+                            'Are you sure you want to exit the App?',
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xffFB5448),
@@ -138,10 +156,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.of(context).pop();
+                                  return Navigator.of(context).pop(false);
                                 },
                                 child: Text(
-                                  'Ignore',
+                                  'No',
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: Color(0xff24414D),
@@ -158,11 +176,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 width: 150,
                                 child: RoundedRaisedButton(
                                   // circleborderRadius: 10,
-                                  title: "Logout",
+                                  title: "Yes",
                                   titleColor: Colors.white,
                                   buttonColor: Color(0xff24414D),
                                   onPress: () {
-                                    Navigator.of(context).pushNamedAndRemoveUntil(kLoginScreen, (route) => false);
+                                    return Navigator.of(context).pop(true);
                                   },
                                 ),
                               ),
@@ -180,11 +198,22 @@ class _DashboardScreenState extends State<DashboardScreen>
         false;
   }
 
-  void _closeModalBottomSheet() {
-    if (_controller != null) {
-      _controller.close();
-      _controller = null;
-    }
+  // void _closeModalBottomSheet() {
+  //   if (_controller != null) {
+  //     _controller.close();
+  //     _controller = null;
+  //   }
+  // }
+
+  void _onMapCreated(GoogleMapController _cntlr) {
+    _controller = _cntlr;
+    location.onLocationChanged.listen((l) {
+      _controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: LatLng(l.latitude, l.longitude), zoom: 10),
+        ),
+      );
+    });
   }
 
   @override
@@ -234,14 +263,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ],
               onPressed: (int index) {
+                final auth = Provider.of<Auth>(context, listen: false);
                 setState(() {
                   for (int i = 0; i < isSelected.length; i++) {
                     isSelected[i] = i == index;
                   }
                   if (index == 0) {
+                    Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, false);
                     availableStatus = false;
+                    print("you");
                   } else {
+                    Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
+                    Auth.socketUtils.emitUPDATELOCATION(auth.user.id, lat.toString(), long.toString());
+                    Auth.socketUtils.listenError();
                     availableStatus = true;
+                    print("Me");
+                    print("****** "+ lat.toString());
+                    print("****** "+ long.toString());
                   }
                 });
               },
@@ -253,11 +291,19 @@ class _DashboardScreenState extends State<DashboardScreen>
           color: Colors.white,
           child: Stack(
             children: <Widget>[
-              _buildMapLayer(),
+              SizedBox(
+                child: GoogleMap(
+                  initialCameraPosition:
+                      CameraPosition(target: _initialcameraposition, zoom: 16),
+                  mapType: MapType.normal,
+                  onMapCreated: _onMapCreated,
+                  myLocationEnabled: true,
+                ),
+              ),
+              // _buildMapLayer(),
               Align(
                 alignment: Alignment.bottomCenter,
-                child:
-                    Align(
+                child: Align(
                   alignment: Alignment.bottomCenter,
                   child: MyActivity(
                     userImage: null,
@@ -277,17 +323,67 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildMapLayer() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: GoogleMap(
-        mapType: MapType.terrain,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          // _controller.complete(controller);
-        },
-        // markers: Set.from(markers),
-      ),
-    );
+  getLoc() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _currentPosition = await location.getLocation();
+    _initialcameraposition =
+        LatLng(_currentPosition.latitude, _currentPosition.longitude);
+    location.onLocationChanged.listen((LocationData currentLocation) {
+      print("${currentLocation.longitude} : ${currentLocation.longitude}");
+      setState(() {
+        long = currentLocation.longitude;
+        lat = currentLocation.latitude;
+        _currentPosition = currentLocation;
+        _initialcameraposition = LatLng(_currentPosition.latitude, _currentPosition.longitude);
+
+        DateTime now = DateTime.now();
+        _dateTime = DateFormat('EEE d MMM kk:mm:ss ').format(now);
+        _getAddress(_currentPosition.latitude, _currentPosition.longitude)
+            .then((value) {
+          setState(() {
+            _address = "${value.first.addressLine}";
+          });
+        });
+      });
+    });
   }
+
+  Future<List<Address>> _getAddress(double lat, double lang) async {
+    final coordinates = new Coordinates(lat, lang);
+    List<Address> add =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    return add;
+  }
+
+  // Widget _buildMapLayer() {
+  //   return SizedBox(
+  //     height: MediaQuery.of(context).size.height,
+  //     child: GoogleMap(
+  //       mapType: MapType.terrain,
+  //       initialCameraPosition: _kGooglePlex,
+  //       onMapCreated: (GoogleMapController controller) {
+  //         // _controller.complete(controller);
+  //       },
+  //       // markers: Set.from(markers),
+  //     ),
+  //   );
+  // }
 }
