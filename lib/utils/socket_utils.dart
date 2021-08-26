@@ -172,17 +172,10 @@ class SocketUtils {
       // onTripDetailSRecieved(data);
     }
 
-  listenTRIPDETAILS(
-    // Function onTripDetailSRecieved
-    ) {
-
+  listenTRIPDETAILS(Function onRIDEREQUESTSRecieved) {
     if (socketIO != null) {
-      socketIO.subscribe("TRIP_DETAILS", _onReceiveChatMessage);
+      socketIO.subscribe("TRIP_DETAILS", onRIDEREQUESTSRecieved);
     }
-
-    // _socket.on(NEW_CARE).listen((data) {
-    //   onNewCareRecieved(data);
-    // });
   }
 
   listenError() {

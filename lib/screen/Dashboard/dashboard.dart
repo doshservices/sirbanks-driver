@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geocoder/model.dart';
@@ -6,7 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
+import 'package:sirbanks_driver/provider/socket_controller.dart';
 import 'package:sirbanks_driver/screen/Dashboard/widget/myActivity.dart';
 import 'package:sirbanks_driver/utils/shared/appDrawer.dart';
 import 'package:sirbanks_driver/utils/shared/rounded_raisedbutton.dart';
@@ -42,6 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   List<bool> isSelected;
   bool availableStatus;
+  Timer _timer;
 
   String driverId;
   String token, lastName, firstName, phonepref, avatar;
@@ -83,9 +88,201 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     getLoc();
     _connectSocket();
+    _timer = Timer.periodic(new Duration(seconds: 16), (Timer t) => callApi());
     super.initState();
     isSelected = [true, false];
   }
+
+  int count = 0;
+  callApi() async {
+    final prefs = await SharedPreferences.getInstance();
+    // 
+    if(prefs.getBool('availableStatus')==false || prefs.getBool('availableStatus')==null){
+      print('You are offline');
+    }
+    if(prefs.getBool('availableStatus')==true){
+      Function onRIDEREQUESTSRecieved = Provider.of<SocketController>(context, listen: false).onRIDEREQUESTSRecieved;
+      await Auth.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
+      count+=1;
+      if(count==1){
+        showRideDialog();
+      }
+    }
+  }
+
+  showRideDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          height: 300,
+          child: Column(
+            children: [
+              Container(
+                  height: 60,
+                  color: Color(0xff24414D),
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Request',
+                        style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600),
+                        textAlign: TextAlign.left,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        '-You hvae 1 new requests',
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600),
+                        textAlign: TextAlign.left,
+                      ),
+                    ],
+                  )),
+              Expanded(
+                child: Container(
+                    color: Color(0xffF2F2F2),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: [
+                        SizedBox(height:5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Pick up',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xffBDBDBD),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              'Destination',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xffBDBDBD),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height:10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Oke -Ira',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              'Fagba',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height:10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '18 mins /2.2KM',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              ' ',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                      ],
+                    )),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              return Navigator.of(context).pop(false);
+                            },
+                            child: Text(
+                              'Ignore',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w400),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Container(
+                            margin: EdgeInsets.all(10),
+                            // height: 55,
+                            width: 150,
+                            child: RoundedRaisedButton(
+                              // circleborderRadius: 10,
+                              title: "Accept",
+                              titleColor: Colors.white,
+                              buttonColor: Color(0xff24414D),
+                              onPress: () {
+                                return Navigator.of(context).pop(true);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // @override
+  // void initState() {
+  //   setState(() {
+  //     minuteValue = 0;
+  //   });
+  //   _timer = Timer.periodic(new Duration(seconds: 16), (Timer t) => callApi());
+  //   super.initState();
+  //   getDataLanguage();
+  // }
 
   @override
   void dispose() {
@@ -262,24 +459,30 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
               ],
-              onPressed: (int index) {
+              onPressed: (int index) async {
+                final prefs = await SharedPreferences.getInstance();
                 final auth = Provider.of<Auth>(context, listen: false);
                 setState(() {
                   for (int i = 0; i < isSelected.length; i++) {
                     isSelected[i] = i == index;
                   }
                   if (index == 0) {
-                    Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, false);
-                    availableStatus = false;
+                    Auth.socketUtils
+                        .emitUPDATEAVAILABILITY(auth.user.id, false);
+                    setState(() {
+                      availableStatus = false;
+                      prefs.setBool('availableStatus', availableStatus);
+                    });
                     print("you");
                   } else {
                     Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
-                    Auth.socketUtils.emitUPDATELOCATION(auth.user.id, lat.toString(), long.toString());
+                    Auth.socketUtils.emitUPDATELOCATION(
+                        auth.user.id, lat.toString(), long.toString());
                     Auth.socketUtils.listenError();
-                    availableStatus = true;
-                    print("Me");
-                    print("****** "+ lat.toString());
-                    print("****** "+ long.toString());
+                    setState(() {
+                      availableStatus = true;
+                      prefs.setBool('availableStatus', availableStatus);
+                    });
                   }
                 });
               },
@@ -352,7 +555,8 @@ class _DashboardScreenState extends State<DashboardScreen>
         long = currentLocation.longitude;
         lat = currentLocation.latitude;
         _currentPosition = currentLocation;
-        _initialcameraposition = LatLng(_currentPosition.latitude, _currentPosition.longitude);
+        _initialcameraposition =
+            LatLng(_currentPosition.latitude, _currentPosition.longitude);
 
         DateTime now = DateTime.now();
         _dateTime = DateFormat('EEE d MMM kk:mm:ss ').format(now);

@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
-
 class Slide {
   final String imageUrl;
   final String title;
   final String subtitle;
 
   Slide({
-    @required this.imageUrl,
-    @required this.title,
-    @required this.subtitle,
+    this.imageUrl,
+    this.title,
+    this.subtitle,
   });
 
   static final slideList = [

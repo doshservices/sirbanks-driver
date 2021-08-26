@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
+import 'package:sirbanks_driver/provider/socket_controller.dart';
 import 'package:sirbanks_driver/screen/Dashboard/complete_reg.dart';
 import 'package:sirbanks_driver/screen/Dashboard/contactus/contact_us.dart';
 import 'package:sirbanks_driver/screen/Dashboard/dashboard.dart';
@@ -36,6 +37,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) {
             return Auth();
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) {
+            return SocketController();
           },
         ),
       ],
