@@ -104,13 +104,14 @@ class _DashboardScreenState extends State<DashboardScreen>
       Function onRIDEREQUESTSRecieved = Provider.of<SocketController>(context, listen: false).onRIDEREQUESTSRecieved;
       await Auth.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
       count+=1;
-      if(count==1){
-        showRideDialog();
+      var data = Provider.of<SocketController>(context, listen: false).getTrip;
+      if(data!=null){
+        showRideDialog(data);
       }
     }
   }
 
-  showRideDialog() {
+  showRideDialog(Map<String, dynamic> data) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
