@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sirbanks_driver/constants.dart';
@@ -19,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String _userPassword = "";
   bool _isLoading = false;
   bool _hidePassword = true, _hideConfirmPassword = true;
+  String deviceModel, deviceName, deviceUUID;
 
   _showShackBar(errorMessage) {
     final snackBar = new SnackBar(
@@ -42,8 +46,28 @@ class _LoginScreenState extends State<LoginScreen> {
       errMsg = "";
     });
     try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        print('Running on ${androidInfo.brand}');
+        setState(() {
+          deviceName = "ANDROID";
+          deviceModel = androidInfo.model;
+          deviceUUID = androidInfo.id;
+        });
+      }
+      if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        print('Running on ${iosInfo.utsname.machine}');
+        setState(() {
+          deviceName = "IOS";
+          deviceModel = iosInfo.model;
+          deviceUUID = iosInfo.systemVersion;
+        });
+      }
+      print(deviceName);
       await Provider.of<Auth>(context, listen: false)
-          .signIn(_userEmail, _userPassword);
+          .signIn(_userEmail, _userPassword, deviceName, deviceUUID);
       // await Provider.of<Auth>(context, listen: false).getUserDetail();
       setState(() {
         errMsg = "";
@@ -274,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Don’t have a Go account? ",
+                      Text("Don’t have an account? ",
                           style: TextStyle(color: Color(0xff292C31))),
                       GestureDetector(
                         onTap: () {

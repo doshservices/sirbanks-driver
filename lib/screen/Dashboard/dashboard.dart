@@ -88,7 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     getLoc();
     _connectSocket();
-    _timer = Timer.periodic(new Duration(seconds: 16), (Timer t) => callApi());
+    // _timer = Timer.periodic(new Duration(seconds: 16), (Timer t) => callApi());
     super.initState();
     isSelected = [true, false];
   }
@@ -96,22 +96,31 @@ class _DashboardScreenState extends State<DashboardScreen>
   int count = 0;
   callApi() async {
     final prefs = await SharedPreferences.getInstance();
-    // 
-    if(prefs.getBool('availableStatus')==false || prefs.getBool('availableStatus')==null){
+    //
+    if (prefs.getBool('availableStatus') == false ||
+        prefs.getBool('availableStatus') == null) {
       print('You are offline');
     }
-    if(prefs.getBool('availableStatus')==true){
-      Function onRIDEREQUESTSRecieved = Provider.of<SocketController>(context, listen: false).onRIDEREQUESTSRecieved;
+    if (prefs.getBool('availableStatus') == true) {
+      Function onRIDEREQUESTSRecieved =
+          Provider.of<SocketController>(context, listen: false)
+              .onRIDEREQUESTSRecieved;
       await Auth.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
-      count+=1;
+      count += 1;
       var data = Provider.of<SocketController>(context, listen: false).getTrip;
-      if(data!=null){
+      if (data != null) {
         showRideDialog(data);
       }
     }
   }
 
   showRideDialog(Map<String, dynamic> data) {
+    final auth = Provider.of<Auth>(context, listen: false);
+    // {"tripId":"66753fea-489e-41c5-823a-c6d19bd81911","riderId":"6108edba6c46f6001c4d3818",
+    // "riderName":"jephtah","distanceToRider":"12.1 km","durationToRider":"21 mins",
+    // "driverId":"6126464b4fa00f001d025c09","pickUp":"Oshodi Bus Terminal Lagos",
+    // "pickUpLon":"3.349149","pickUpLat":"6.605874","dropOff":"Ikeja along bus lagos",
+    // "dropOffLon":"32.45","dropOffLat":"12.44"}
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -153,10 +162,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height:5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        SizedBox(height: 5),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Pick up',
@@ -166,6 +177,22 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   fontWeight: FontWeight.w600),
                               // textAlign: TextAlign.left,
                             ),
+                            SizedBox(height: 10),
+                            Text(
+                              data['dropOff'].toString(),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          // mainAxisAlignment: MainAxisAlignment.s,
+                          children: [
                             Text(
                               'Destination',
                               style: TextStyle(
@@ -174,22 +201,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   fontWeight: FontWeight.w600),
                               // textAlign: TextAlign.left,
                             ),
-                          ],
-                        ),
-                        SizedBox(height:10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Oke -Ira',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xff24414D),
-                                  fontWeight: FontWeight.w600),
-                              // textAlign: TextAlign.left,
+                            SizedBox(
+                              height: 10,
                             ),
                             Text(
-                              'Fagba',
+                              data['pickUp'].toString(),
                               style: TextStyle(
                                   fontSize: 14,
                                   color: Color(0xff24414D),
@@ -198,12 +214,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                             ),
                           ],
                         ),
-                        SizedBox(height:10),
+                        SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '18 mins /2.2KM',
+                              '${data['durationToRider'].toString()} /${data['distanceToRider'].toString()}',
                               style: TextStyle(
                                   fontSize: 14,
                                   color: Color(0xff24414D),
@@ -258,6 +274,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                               titleColor: Colors.white,
                               buttonColor: Color(0xff24414D),
                               onPress: () {
+                                Auth.socketUtils.emitACCEPTREQUEST(
+                                    data['tripId'],
+                                    auth.user.id,
+                                    lat.toString(),
+                                    long.toString());
                                 return Navigator.of(context).pop(true);
                               },
                             ),
@@ -408,7 +429,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     location.onLocationChanged.listen((l) {
       _controller.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(l.latitude, l.longitude), zoom: 10),
+          CameraPosition(target: LatLng(l.latitude, l.longitude), zoom: 18),
         ),
       );
     });
@@ -417,111 +438,119 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     // riderRequest();
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        key: _scaffoldKey,
-        drawer: new MenuScreens(activeScreenName: screenName),
-        appBar: AppBar(
-          elevation: 1,
-          backgroundColor: Colors.white,
-          leading: IconButton(
-            icon: Icon(
-              Icons.menu,
-              size: 30,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              _scaffoldKey.currentState.openDrawer();
-            },
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: new MenuScreens(activeScreenName: screenName),
+      appBar: AppBar(
+        elevation: 1,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.menu,
+            size: 30,
+            color: Colors.black,
           ),
-          title: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: ToggleButtons(
-              borderColor: Colors.grey,
-              fillColor: Color(0xff24414D),
-              borderWidth: 2,
-              selectedBorderColor: Colors.black,
-              selectedColor: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Offline',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Online',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-              onPressed: (int index) async {
-                final prefs = await SharedPreferences.getInstance();
-                final auth = Provider.of<Auth>(context, listen: false);
-                setState(() {
-                  for (int i = 0; i < isSelected.length; i++) {
-                    isSelected[i] = i == index;
-                  }
-                  if (index == 0) {
-                    Auth.socketUtils
-                        .emitUPDATEAVAILABILITY(auth.user.id, false);
-                    setState(() {
-                      availableStatus = false;
-                      prefs.setBool('availableStatus', availableStatus);
-                    });
-                    print("you");
-                  } else {
-                    Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
-                    Auth.socketUtils.emitUPDATELOCATION(
-                        auth.user.id, lat.toString(), long.toString());
-                    Auth.socketUtils.listenError();
-                    setState(() {
-                      availableStatus = true;
-                      prefs.setBool('availableStatus', availableStatus);
-                    });
-                  }
-                });
-              },
-              isSelected: isSelected,
-            ),
-          ),
+          onPressed: () {
+            _scaffoldKey.currentState.openDrawer();
+          },
         ),
-        body: Container(
-          color: Colors.white,
-          child: Stack(
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: ToggleButtons(
+            borderColor: Colors.grey,
+            fillColor: Color(0xff24414D),
+            borderWidth: 2,
+            selectedBorderColor: Colors.black,
+            selectedColor: Colors.white,
+            borderRadius: BorderRadius.circular(50),
             children: <Widget>[
-              SizedBox(
-                child: GoogleMap(
-                  initialCameraPosition:
-                      CameraPosition(target: _initialcameraposition, zoom: 16),
-                  mapType: MapType.normal,
-                  onMapCreated: _onMapCreated,
-                  myLocationEnabled: true,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Offline',
+                  style: TextStyle(fontSize: 15),
                 ),
               ),
-              // _buildMapLayer(),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: MyActivity(
-                    userImage: null,
-                    userName: '$firstName ',
-                    level: '',
-                    totalEarned: '\0',
-                    hoursOnline: 0.0,
-                    totalDistance: '',
-                    totalJob: 0,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  'Online',
+                  style: TextStyle(fontSize: 15),
                 ),
-              )
+              ),
             ],
+            onPressed: (int index) async {
+              // Provider.of<SocketController>(context, listen: false).getTrip=null;
+              final prefs = await SharedPreferences.getInstance();
+              final auth = Provider.of<Auth>(context, listen: false);
+              setState(() {
+                for (int i = 0; i < isSelected.length; i++) {
+                  isSelected[i] = i == index;
+                }
+                if (index == 0) {
+                  Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, false);
+                  setState(() {
+                    availableStatus = false;
+                    prefs.setBool('availableStatus', availableStatus);
+                  });
+                  print("you");
+                } else {
+                  Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
+                  Auth.socketUtils.emitUPDATELOCATION(
+                      auth.user.id, lat.toString(), long.toString());
+                  Auth.socketUtils.listenError();
+                  setState(() {
+                    availableStatus = true;
+                    prefs.setBool('availableStatus', availableStatus);
+                  });
+                }
+              });
+              Function onRIDEREQUESTSRecieved =
+                  Provider.of<SocketController>(context, listen: false)
+                      .onRIDEREQUESTSRecieved;
+              await Auth.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
+              count += 1;
+              var data =
+                  Provider.of<SocketController>(context, listen: false).getTrip;
+              print("hhhhhhhh" + data.toString());
+              if (data != null) {
+                showRideDialog(data);
+              }
+            },
+            isSelected: isSelected,
           ),
+        ),
+      ),
+      body: Container(
+        color: Colors.white,
+        child: Stack(
+          children: <Widget>[
+            SizedBox(
+              child: GoogleMap(
+                initialCameraPosition:
+                    CameraPosition(target: _initialcameraposition, zoom: 18),
+                mapType: MapType.normal,
+                onMapCreated: _onMapCreated,
+                myLocationEnabled: true,
+              ),
+            ),
+            // _buildMapLayer(),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: MyActivity(
+                  userImage: null,
+                  userName: '$firstName ',
+                  level: '',
+                  totalEarned: '\0',
+                  hoursOnline: 0.0,
+                  totalDistance: '',
+                  totalJob: 0,
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );

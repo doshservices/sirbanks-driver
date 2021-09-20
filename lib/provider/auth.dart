@@ -164,9 +164,14 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(String email, String password, deviceName, deviceUUID) async {
     var data = jsonEncode(
-        {"phoneOrEmail": email.toString(), "password": password.toString()});
+        {
+          "phoneOrEmail": email.toString(), 
+          "password": password.toString(),
+          "deviceToken" : deviceUUID,
+          "devicePlatform" : deviceName
+        });
     try {
       final response = await http.post(
         "${config.baseUrl}/auth/driver/login",

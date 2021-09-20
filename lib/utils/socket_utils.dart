@@ -66,8 +66,6 @@ class SocketUtils {
     //    "dropOffLon": "3.123455"
     //   });
     //  socketIO.sendMessage("GET_TRIP_DETAILS", jsonData, _socketConnect);
-
-
   }
 
   _socketConnect(dynamic data) {
@@ -89,8 +87,6 @@ class SocketUtils {
     socketIO.connect();
     // socket.connect();
   }
-
-
 
   setOnConnectionErrorListener(Function onConnectError) {
     onConnectError(_socketError);
@@ -119,30 +115,37 @@ class SocketUtils {
     // });
   }
 
- emitUPDATEAVAILABILITY(
-    String id,
-    bool avaliable
-  ) {
+  emitUPDATEAVAILABILITY(String id, bool avaliable) {
     print('sending out new video bc $id');
     if (null == socketIO) {
       print("Socket is Null, Cannot send message");
       return;
     }
     if (socketIO != null) {
-       socketIO.connect();
-       print("*********UPDATE_AVAILABILITY*******");
-      var jsonData = jsonEncode({
-        "id": id,
-        "availability": avaliable
-      });
+      socketIO.connect();
+      print("*********UPDATE_AVAILABILITY*******");
+      var jsonData = jsonEncode({"id": id, "availability": avaliable});
       socketIO.sendMessage("UPDATE_AVAILABILITY", jsonData, _socketConnect);
     }
   }
 
-   emitUPDATELOCATION(
-    String id,
-    String lat,
-    String lon
+  emitUPDATELOCATION(String id, String lat, String lon) {
+    print('sending out new video bc $id');
+    if (null == socketIO) {
+      print("Socket is Null, Cannot send message");
+      return;
+    }
+    if (socketIO != null) {
+      socketIO.connect();
+      print("*********UPDATE_LOCATION*******");
+      var jsonData =
+          jsonEncode({"id": id, "role": "driver", "lon": lon, "lat": lat});
+      socketIO.sendMessage("UPDATE_LOCATION", jsonData, _socketConnect);
+    }
+  }
+
+  emitACCEPTREQUEST(
+    tripId, String id, lat, long,
   ) {
     print('sending out new video bc $id');
     if (null == socketIO) {
@@ -150,15 +153,15 @@ class SocketUtils {
       return;
     }
     if (socketIO != null) {
-       socketIO.connect();
-       print("*********UPDATE_LOCATION*******");
+      socketIO.connect();
+      print("*******ACCEPT_REQUEST*********");
       var jsonData = jsonEncode({
         "id": id,
-        "role": "driver",
-        "lon": lon,
-        "lat": lat
+        "tripId": tripId.toString(),
+        "lon": long.toString(),
+        "lat": lat.toString(),
       });
-      socketIO.sendMessage("UPDATE_LOCATION", jsonData, _socketConnect);
+      socketIO.sendMessage("ACCEPT_REQUEST", jsonData, _socketConnect);
     }
   }
 
@@ -168,13 +171,14 @@ class SocketUtils {
   // }
 
   _onReceiveChatMessage(dynamic data) {
-      print(" ****** OnTrip Detail ********* Message from UFO: " + data.toString());
-      // onTripDetailSRecieved(data);
-    }
+    print(
+        " ****** OnTrip Detail ********* Message from UFO: " + data.toString());
+    // onTripDetailSRecieved(data);
+  }
 
   listenTRIPDETAILS(Function onRIDEREQUESTSRecieved) {
     if (socketIO != null) {
-      socketIO.subscribe("TRIP_DETAILS", onRIDEREQUESTSRecieved);
+      socketIO.subscribe("RIDE_REQUEST", onRIDEREQUESTSRecieved);
     }
   }
 
