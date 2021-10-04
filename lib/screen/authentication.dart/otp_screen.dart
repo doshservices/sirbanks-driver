@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_pin_code_fields/flutter_pin_code_fields.dart';
 import 'package:provider/provider.dart';
-import 'package:sirbanks_driver/constants.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
 import 'package:sirbanks_driver/utils/shared/rounded_raisedbutton.dart';
 
@@ -211,13 +210,6 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
             ),
             SizedBox(height: 20),
-            // GestureDetector(
-            //   onTap: () {},
-            //   child: Text(
-            //     'Resend code',
-            //     style: TextStyle(fontSize: 18, color: Color(0xffFB5448)),
-            //   ),
-            // ),
           ]),
         ));
   }

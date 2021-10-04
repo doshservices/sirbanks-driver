@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
 import 'package:sirbanks_driver/provider/socket_controller.dart';
 import 'package:sirbanks_driver/screen/Dashboard/complete_reg.dart';
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget {
             print(auth.isAuth);
             print("55555555"+auth.user.isVerified.toString());
             return 
-      MaterialApp(
+      GetMaterialApp(
           title: 'Sirbanks Driver',
           theme: ThemeData(
             primarySwatch: Colors.blue,

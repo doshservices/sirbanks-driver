@@ -603,7 +603,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Future<List<Address>> _getAddress(double lat, double lang) async {
     final coordinates = new Coordinates(lat, lang);
     List<Address> add =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    await Geocoder.local.findAddressesFromCoordinates(coordinates);
     return add;
   }
 

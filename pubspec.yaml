@@ -48,6 +48,7 @@ dependencies:
   geocoding: ^1.0.5
   geolocator: ^6.2.1
   geocoder: ^0.2.1
+  get: ^3.4.6
   search_map_place: ^0.3.0
   shared_preferences: ^0.5.12+4
 
