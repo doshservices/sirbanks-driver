@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sirbanks_driver/google_map_helper.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
 import 'package:sirbanks_driver/provider/socket_controller.dart';
 import 'package:sirbanks_driver/screen/Dashboard/complete_reg.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
                 home: auth.isAuth == true 
                     ? auth.user.isProfileCompleted == false && auth.user.isVerified ==false ? CompleteRegistrationScreen() : DashboardScreen()
+                    // MapBoxScreen()
                     : FutureBuilder(
                         future: auth.tryAutoLogin(),
                         builder: (ctx, authResultSnapShot) =>
@@ -86,6 +88,7 @@ class MyApp extends StatelessWidget {
             KCompleteRegistrationScreen: (ctx) => CompleteRegistrationScreen(),
             KPaymentMethod : (ctx) => PaymentMethod(),
             KCardPayment : (ctx) => CardPayment(),
+            KMapBoxScreen: (ctx) => MapBoxScreen(),
           });})
     );
   }

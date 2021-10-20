@@ -30,3 +30,4 @@ const KOtpScreen = 'otpScreen';
 const KCompleteRegistrationScreen = 'completeRegistrationScreen';
 const KPaymentMethod = 'paymentMethod';
 const KCardPayment = 'cardPayment';
+const KMapBoxScreen = 'mapBoxScreen';
