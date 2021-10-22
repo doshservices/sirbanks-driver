@@ -1,3 +1,191 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+// import 'package:flutter_map/flutter_map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'package:latlong/latlong.dart' ;
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter/services.dart';
+import 'package:location/location.dart';
+import 'dart:typed_data';
+
+
+class MapBoxScreen extends StatefulWidget {
+  @override
+  _MapBoxScreenState createState() => _MapBoxScreenState();
+}
+
+class _MapBoxScreenState extends State<MapBoxScreen> {
+  double _originLatitude, _originLongitude;
+  double _destLatitude, _destLongitude;
+  Map<MarkerId, Marker> markers = {};
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints = PolylinePoints();
+
+  bool _isSearchProcessing = false;
+
+  StreamSubscription _locationSubscription;
+  GoogleMapController _mapController;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (_locationSubscription != null) {
+      _locationSubscription.cancel();
+    }
+    super.dispose();
+  }
+
+  // var points = <LatLng>[
+  //   new LatLng(35.22, -101.83),
+  //   new LatLng(32.77, -96.79),
+  //   new LatLng(29.33, -95.36),
+  //   // new LatLng(29.42, -98.49),
+  //   // new LatLng(35.22, -101.83),]
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _isSearchProcessing
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Stack(children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(37.42796133580664, -122.085749655962),
+                  zoom: 14.4746,
+                ),
+                myLocationEnabled: true,
+                tiltGesturesEnabled: true,
+                compassEnabled: true,
+                scrollGesturesEnabled: true,
+                zoomGesturesEnabled: true,
+                zoomControlsEnabled: false,
+                markers: Set<Marker>.of(markers.values),
+                polylines: Set<Polyline>.of(polylines.values),
+                // circles: Set.of((circle != null) ? [circle] : []),
+                onMapCreated: _onMapCreated,
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 40),
+                child: IconButton(
+                    onPressed: () {
+                      // _closeMap(context);
+                    },
+                    icon: Icon(Icons.close, color: Colors.teal)),
+              )
+            ]),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.redAccent,
+          child: Icon(Icons.location_searching),
+          onPressed: () {
+            _initMarkers();
+          setState(() {});
+            // _searchDialog(context);
+          }),
+    );
+  }
+
+  void _onMapCreated(GoogleMapController controller) async {
+    _mapController = controller;
+  }
+
+  _searchDialog(context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(10.0),
+          ),
+        ),
+        content: Builder(
+          builder: (context) {
+            return Container();
+            // Search(query: widget.trackingNumber);
+          },
+        ),
+      ),
+    ).then(
+      (value) {
+        if (value != null) {
+          _initMarkers();
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  //initialized marker and polylines
+  _initMarkers() {
+    _originLatitude = double.parse('35.22');
+    _originLongitude = double.parse('-101.83');
+    _destLatitude = double.parse('29.42');
+    _destLongitude = double.parse('-98.49');
+
+    /// origin marker
+    _addMarker(LatLng(_originLatitude, _originLongitude), "Pickup",
+        BitmapDescriptor.defaultMarker);
+
+    /// destination marker
+    _addMarker(LatLng(_destLatitude, _destLongitude), "Destination",
+        BitmapDescriptor.defaultMarkerWithHue(118));
+
+    _getPolyline();
+  }
+
+//get cordinates
+  _getPolyline() async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      "AIzaSyCgeGrZMAyo5CWsgP6YcYTYaHmVcDkRYB4",
+      PointLatLng(_originLatitude, _originLongitude),
+      PointLatLng(_destLatitude, _destLongitude),
+      travelMode: TravelMode.driving,
+      //wayPoints: [PolylineWayPoint(location: "$pickupAddress")],
+    );
+
+    if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
+  }
+
+//polyling functions
+
+  _addPolyLine() {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        polylineId: id, color: Colors.blue, points: polylineCoordinates);
+    polylines[id] = polyline;
+    setState(() {});
+  }
+
+//add pickup and destination markers
+  _addMarker(LatLng position, String id, BitmapDescriptor descriptor) {
+    MarkerId markerId = MarkerId(id);
+    Marker marker = Marker(
+      markerId: markerId,
+      icon: descriptor,
+      position: position,
+      infoWindow: InfoWindow(
+        title: "$id",
+      ),
+    );
+    markers[markerId] = marker;
+  }
+
+}
+
+
 // import 'package:flutter/material.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 // import 'Components/decodePolyline.dart';

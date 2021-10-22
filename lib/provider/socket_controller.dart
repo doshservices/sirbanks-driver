@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sirbanks_driver/utils/shared/rounded_raisedbutton.dart';
 import 'package:sirbanks_driver/utils/socket_utils.dart';
 
@@ -13,6 +14,8 @@ class SocketController with ChangeNotifier {
   // IncomingCall incomingCall;
   int onlinePractitionerscount = 0;
   dynamic currentPatientOnCallSocket;
+  String latitude, longitude;
+  List dataList = [];
 
   // void endIncomingCall() {
   //   incomingCall = null;
@@ -26,6 +29,18 @@ class SocketController with ChangeNotifier {
 
   void setCurrentPatientOnCallSocket(dynamic socket) {
     currentPatientOnCallSocket = socket;
+    notifyListeners();
+  }
+
+  getDriverDetail(){
+    return dataList;
+    notifyListeners();
+  }
+
+  void setloc(lat, long) {
+    latitude = lat.toString();
+    longitude = long.toString();
+    print('*****?????***** == ' + long.toString());
     notifyListeners();
   }
 
@@ -64,15 +79,15 @@ class SocketController with ChangeNotifier {
     print("new video arrived");
     print(datavalue);
     // print("+++++++++++"+ datavalue['duration'].toString());
-    
+
     // print("+++++++++++");
     var data = jsonDecode(datavalue);
-    if(data!=null){
     
-    Get.defaultDialog(
-      title: '',
-      titleStyle: TextStyle(fontSize: 1),
-      content: Container(
+    if (data != null) {
+      Get.defaultDialog(
+        title: '',
+        titleStyle: TextStyle(fontSize: 1),
+        content: Container(
           height: 260,
           child: Column(
             children: [
@@ -197,8 +212,12 @@ class SocketController with ChangeNotifier {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              return Get.back();
+                            onTap: () async {
+                              final prefs = await SharedPreferences.getInstance();
+                              final extractdata = json.decode(prefs.getString("userData"));
+                              String id = extractdata["userId"];
+                              socketUtils.emitREJECTREQUEST(data['tripId'], id);
+                              Get.back();
                             },
                             child: Text(
                               'Ignore',
@@ -221,13 +240,20 @@ class SocketController with ChangeNotifier {
                               title: "Accept",
                               titleColor: Colors.white,
                               buttonColor: Color(0xff24414D),
-                              onPress: () {
-                                // Auth.socketUtils.emitACCEPTREQUEST(
-                                //     data['tripId'],
-                                //     auth.user.id,
-                                //     lat.toString(),
-                                //     long.toString());
-                                // return Navigator.of(context).pop(true);
+                              onPress: () async {
+                                getTrip=data;
+                                Get.back();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                final extractdata =
+                                    json.decode(prefs.getString("userData"));
+                                String id = extractdata["userId"];
+                                socketUtils.emitACCEPTREQUEST(
+                                    data['tripId'],
+                                    id,
+                                    latitude.toString(),
+                                    longitude.toString());
+                                    
                               },
                             ),
                           ),
@@ -240,7 +266,8 @@ class SocketController with ChangeNotifier {
             ],
           ),
         ),
-    );}
+      );
+    }
     // showRideDialog(Map<String, dynamic> data) {
     // final auth = Provider.of<Auth>(context, listen: false);
     // // {"tripId":"66753fea-489e-41c5-823a-c6d19bd81911","riderId":"6108edba6c46f6001c4d3818",
@@ -251,7 +278,7 @@ class SocketController with ChangeNotifier {
     // showDialog(
     //   context: context,
     //   builder: (context) => Dialog(
-    //     child: 
+    //     child:
     //   ),
     // );
     // if(data!=null){
@@ -276,9 +303,9 @@ class SocketController with ChangeNotifier {
     // }
 
     // getTripDetailModel = getTripDetail;
-    
+
     // }
-    
+
     notifyListeners();
   }
 }

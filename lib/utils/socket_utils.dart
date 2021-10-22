@@ -145,7 +145,8 @@ class SocketUtils {
   }
 
   emitACCEPTREQUEST(
-    tripId, String id, lat, long,
+    tripId, 
+    String id, lat, long,
   ) {
     print('sending out new video bc $id');
     if (null == socketIO) {
@@ -162,6 +163,27 @@ class SocketUtils {
         "lat": lat.toString(),
       });
       socketIO.sendMessage("ACCEPT_REQUEST", jsonData, _socketConnect);
+    }
+  }
+
+  emitREJECTREQUEST(
+    tripId, 
+    String id,
+  ) {
+    print('sending out new video bc $id');
+    if (null == socketIO) {
+      print("Socket is Null, Cannot send message");
+      return;
+    }
+    if (socketIO != null) {
+      socketIO.connect();
+      print("*******REJECT_REQUEST*********");
+      var jsonData = jsonEncode(
+        {
+        "id": id,
+        "tripId": tripId.toString(),
+        });
+      socketIO.sendMessage("REJECT_REQUEST", jsonData, _socketConnect);
     }
   }
 

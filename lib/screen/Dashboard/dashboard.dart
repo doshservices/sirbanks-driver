@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sirbanks_driver/provider/auth.dart';
 import 'package:sirbanks_driver/provider/socket_controller.dart';
 import 'package:sirbanks_driver/screen/Dashboard/widget/myActivity.dart';
+import 'package:sirbanks_driver/screen/Dashboard/widget/select_ride.dart';
 import 'package:sirbanks_driver/utils/shared/appDrawer.dart';
 import 'package:sirbanks_driver/utils/shared/rounded_raisedbutton.dart';
 
@@ -274,11 +275,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                               titleColor: Colors.white,
                               buttonColor: Color(0xff24414D),
                               onPress: () {
-                                Auth.socketUtils.emitACCEPTREQUEST(
-                                    data['tripId'],
-                                    auth.user.id,
-                                    lat.toString(),
-                                    long.toString());
+                                // Auth.socketUtils.emitACCEPTREQUEST(
+                                //     data['tripId'],
+                                //     auth.user.id,
+                                //     lat.toString(),
+                                //     long.toString());
                                 return Navigator.of(context).pop(true);
                               },
                             ),
@@ -538,17 +539,29 @@ class _DashboardScreenState extends State<DashboardScreen>
             Align(
               alignment: Alignment.bottomCenter,
               child: Align(
-                alignment: Alignment.bottomCenter,
-                child: MyActivity(
-                  userImage: null,
-                  userName: '$firstName ',
-                  level: '',
-                  totalEarned: '\0',
-                  hoursOnline: 0.0,
-                  totalDistance: '',
-                  totalJob: 0,
-                ),
-              ),
+                  alignment: Alignment.bottomCenter,
+                  child: Consumer<SocketController>(
+                    builder: (ctx, data, _) {
+                      return data.getTrip == null
+                          ? MyActivity(
+                              userImage: null,
+                              userName: '$firstName ',
+                              level: '',
+                              totalEarned: '\0',
+                              hoursOnline: 0.0,
+                              totalDistance: '',
+                              totalJob: 0,
+                            )
+                          : 
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: SelectRideWidgt(data: data.getTrip),
+                              ),
+                            );
+                    },
+                  )),
             )
           ],
         ),
@@ -596,14 +609,15 @@ class _DashboardScreenState extends State<DashboardScreen>
             _address = "${value.first.addressLine}";
           });
         });
+        Provider.of<SocketController>(context, listen: false)
+            .setloc(_currentPosition.latitude, _currentPosition.longitude);
       });
     });
   }
 
   Future<List<Address>> _getAddress(double lat, double lang) async {
     final coordinates = new Coordinates(lat, lang);
-    List<Address> add =
-    await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    List<Address> add = await Geocoder.local.findAddressesFromCoordinates(coordinates);
     return add;
   }
 
@@ -621,3 +635,5 @@ class _DashboardScreenState extends State<DashboardScreen>
   //   );
   // }
 }
+
+// SelectRide({SocketController data, value}) {}

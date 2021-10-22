@@ -24,6 +24,7 @@ import 'package:sirbanks_driver/splashscreen.dart';
 import 'package:provider/provider.dart';
 
 import 'constants.dart';
+import 'google_map_helper.dart';
 import 'screen/authentication.dart/enable_location.dart';
 
 void main() {
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
             KCompleteRegistrationScreen: (ctx) => CompleteRegistrationScreen(),
             KPaymentMethod : (ctx) => PaymentMethod(),
             KCardPayment : (ctx) => CardPayment(),
+            KMapBoxScreen: (ctx) => MapBoxScreen(),
           });})
     );
   }
