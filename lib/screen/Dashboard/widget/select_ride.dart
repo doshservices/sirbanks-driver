@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sirbanks_driver/provider/auth.dart';
+import 'package:sirbanks_driver/provider/socket_controller.dart';
 import 'package:sirbanks_driver/utils/shared/rounded_raisedbutton.dart';
 
 class SelectRideWidgt extends StatefulWidget {
@@ -13,6 +16,8 @@ class SelectRideWidgt extends StatefulWidget {
 }
 
 class _SelectRideWidgtState extends State<SelectRideWidgt> {
+  bool startRide = true;
+
   // print(widget.data.);
   @override
   Widget build(BuildContext context) {
@@ -118,6 +123,7 @@ class _SelectRideWidgtState extends State<SelectRideWidgt> {
                         SizedBox(height: 10)
                       ],
                     )),
+              if(startRide ==true)
               Container(
               margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               height: 55,
@@ -127,11 +133,37 @@ class _SelectRideWidgtState extends State<SelectRideWidgt> {
                 titleColor: Colors.white,
                 buttonColor: Color(0xff24414D),
                 onPress: () async {
-                  // await Auth.socketUtils.emitRequestRide();
+                  final onTripdetail = Provider.of<SocketController>(context, listen: false).getTrip;
+                  await SocketController.socketUtils.emitStartRide(onTripdetail);
+                  await SocketController.socketUtils.listenError();
                   // Function onTripDetailSRecieved = Provider.of<SocketController>(context, listen: false).onTripDetailSRecieved;
                   // await Auth.socketUtils
                   //         .listenTRIPDETAILS(onTripDetailSRecieved);
                   //     await Auth.socketUtils.listenError();
+                  setState(() {
+                    startRide = false;
+                  });
+                  
+                })),
+                if(startRide ==false)
+              Container(
+              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              height: 55,
+              width: double.infinity,
+              child: RoundedRaisedButton(
+                title: "End Ride",
+                titleColor: Colors.white,
+                buttonColor: Color(0xff24414D),
+                onPress: () async {
+                  final onTripdetail = Provider.of<SocketController>(context, listen: false).getTrip;
+                  await SocketController.socketUtils.emitEndRide(onTripdetail);
+                  Function onEndtrip = Provider.of<SocketController>(context, listen: false).onTripEnded;
+                  await SocketController.socketUtils.listenTripEnded(onEndtrip);
+                  Function onCanceltrip = Provider.of<SocketController>(context, listen: false).onTripCancelled;
+                  await SocketController.socketUtils.listenTripCancel(onCanceltrip);
+                  setState(() {
+                    startRide = false;
+                  });
                 })),
               // Row(
               //   children: [

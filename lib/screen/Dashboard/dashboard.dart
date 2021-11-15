@@ -56,11 +56,14 @@ class _DashboardScreenState extends State<DashboardScreen>
   _connectSocket() {
     final auth = Provider.of<Auth>(context, listen: false);
     Future.delayed(Duration(seconds: 2), () async {
-      Auth.initSocket();
-      await Auth.socketUtils.initSocket(auth.token, auth.user.id);
-      Auth.socketUtils.connectToSocket();
-      Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
-      Auth.socketUtils.listenError();
+      // Auth.initSocket();
+      SocketController.initSocket();
+      // await Auth.socketUtils.initSocket(auth.token, auth.user.id);
+      await SocketController.socketUtils.initSocket(auth.token, auth.user.id);
+      // Auth.socketUtils.connectToSocket();
+      SocketController.socketUtils.connectToSocket();
+      SocketController.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
+      SocketController.socketUtils.listenError();
     });
   }
 
@@ -106,7 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       Function onRIDEREQUESTSRecieved =
           Provider.of<SocketController>(context, listen: false)
               .onRIDEREQUESTSRecieved;
-      await Auth.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
+      await SocketController.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
       count += 1;
       var data = Provider.of<SocketController>(context, listen: false).getTrip;
       if (data != null) {
@@ -489,17 +492,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                   isSelected[i] = i == index;
                 }
                 if (index == 0) {
-                  Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, false);
+                  SocketController.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, false);
                   setState(() {
                     availableStatus = false;
                     prefs.setBool('availableStatus', availableStatus);
                   });
                   print("you");
                 } else {
-                  Auth.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
-                  Auth.socketUtils.emitUPDATELOCATION(
+                  SocketController.socketUtils.emitUPDATEAVAILABILITY(auth.user.id, true);
+                  SocketController.socketUtils.emitUPDATELOCATION(
                       auth.user.id, lat.toString(), long.toString());
-                  Auth.socketUtils.listenError();
+                  SocketController.socketUtils.listenError();
                   setState(() {
                     availableStatus = true;
                     prefs.setBool('availableStatus', availableStatus);
@@ -509,14 +512,14 @@ class _DashboardScreenState extends State<DashboardScreen>
               Function onRIDEREQUESTSRecieved =
                   Provider.of<SocketController>(context, listen: false)
                       .onRIDEREQUESTSRecieved;
-              await Auth.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
-              count += 1;
-              var data =
-                  Provider.of<SocketController>(context, listen: false).getTrip;
-              print("hhhhhhhh" + data.toString());
-              if (data != null) {
-                showRideDialog(data);
-              }
+              await SocketController.socketUtils.listenTRIPDETAILS(onRIDEREQUESTSRecieved);
+              // count += 1;
+              // var data =
+              //     Provider.of<SocketController>(context, listen: false).getTrip;
+              // print("hhhhhhhh" + data.toString());
+              // if (data != null) {
+              //   showRideDialog(data);
+              // }
             },
             isSelected: isSelected,
           ),

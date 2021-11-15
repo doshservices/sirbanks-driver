@@ -129,6 +129,40 @@ class SocketUtils {
     }
   }
 
+  emitStartRide(Map<String, dynamic> data) {
+    print('sending out new video bc $id');
+    if (null == socketIO) {
+      print("Socket is Null, Cannot send message");
+      return;
+    }
+    if (socketIO != null) {
+      socketIO.connect();
+      print("*********Strat TripY*******");
+      var jsonData = jsonEncode({"id": id, "tripId": data['tripId']});
+      socketIO.sendMessage("START_TRIP", jsonData, _socketConnect);
+    }
+  }
+
+  emitEndRide(Map<String, dynamic> data) {
+    print('sending out new video bc $id');
+    if (null == socketIO) {
+      print("Socket is Null, Cannot send message");
+      return;
+    }
+    if (socketIO != null) {
+      socketIO.connect();
+      print("*********End Ride*******");
+      var jsonData = jsonEncode({
+      "id": id,
+      "tripId": data['tripId'],
+      "dropOff": data['dropOff'],
+      "dropOffLon": data['dropOffLon'],
+      "dropOffLat": data['dropOffLat'],
+      });
+      socketIO.sendMessage("END_TRIP", jsonData, _socketConnect);
+    }
+  }
+
   emitUPDATELOCATION(String id, String lat, String lon) {
     print('sending out new video bc $id');
     if (null == socketIO) {
@@ -162,6 +196,7 @@ class SocketUtils {
         "lon": long.toString(),
         "lat": lat.toString(),
       });
+      print(jsonData);
       socketIO.sendMessage("ACCEPT_REQUEST", jsonData, _socketConnect);
     }
   }
@@ -194,13 +229,25 @@ class SocketUtils {
 
   _onReceiveChatMessage(dynamic data) {
     print(
-        " ****** OnTrip Detail ********* Message from UFO: " + data.toString());
+        " ****** Error ********* Message from UFO: " + data.toString());
     // onTripDetailSRecieved(data);
   }
 
   listenTRIPDETAILS(Function onRIDEREQUESTSRecieved) {
     if (socketIO != null) {
       socketIO.subscribe("RIDE_REQUEST", onRIDEREQUESTSRecieved);
+    }
+  }
+
+  listenTripEnded(Function onRIDEREQUESTSRecieved) {
+    if (socketIO != null) {
+      socketIO.subscribe("TRIP_ENDED", onRIDEREQUESTSRecieved);
+    }
+  }
+
+  listenTripCancel(Function onRIDEREQUESTSRecieved) {
+    if (socketIO != null) {
+      socketIO.subscribe("TRIP_CANCELED", onRIDEREQUESTSRecieved);
     }
   }
 

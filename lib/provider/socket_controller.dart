@@ -21,11 +21,11 @@ class SocketController with ChangeNotifier {
   //   incomingCall = null;
   //   notifyListeners();
   // }
-  // static initSocket() {
-  //   if (null == socketUtils) {
-  //     socketUtils = SocketUtils();
-  //   }
-  // }
+  static initSocket() {
+    if (null == socketUtils) {
+      socketUtils = SocketUtils();
+    }
+  }
 
   void setCurrentPatientOnCallSocket(dynamic socket) {
     currentPatientOnCallSocket = socket;
@@ -248,6 +248,7 @@ class SocketController with ChangeNotifier {
                                 final extractdata =
                                     json.decode(prefs.getString("userData"));
                                 String id = extractdata["userId"];
+                                print(extractdata["userId"]);
                                 socketUtils.emitACCEPTREQUEST(
                                     data['tripId'],
                                     id,
@@ -308,4 +309,174 @@ class SocketController with ChangeNotifier {
 
     notifyListeners();
   }
+
+  onTripCancelled(String datavalue) {
+    print(datavalue);
+    print("+++++++++++" + datavalue.toString());
+    // var data = jsonDecode(datavalue);
+    print("+++++++++++");
+    if (datavalue != null) {
+      Get.snackbar('Trip Cancel', datavalue.toString(),
+          barBlur: 0,
+          dismissDirection: SnackDismissDirection.VERTICAL,
+          backgroundColor: Colors.green,
+          overlayBlur: 0,
+          animationDuration: Duration(seconds: 3),
+          duration: Duration(seconds: 6));
+      Get.back();
+      Get.back();
+    }
+    notifyListeners();
+  }
+
+  onTripEnded(String datavalue) {
+    print(datavalue);
+    print("Drive Found+++++++++++  " + datavalue.toString());
+    var data = jsonDecode(datavalue);
+    print("+++++++++++");
+    if (data != null) {
+      // driverFound = data;
+      Get.defaultDialog(
+        title: '',
+        titleStyle: TextStyle(fontSize: 1),
+        content: Container(
+          height: 260,
+          child: Column(
+            children: [
+              Container(
+                  height: 50,
+                  color: Color(0xff24414D),
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Trip Ended',
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600),
+                        textAlign: TextAlign.left,
+                      ),
+                    ],
+                  )),
+              Expanded(
+                child: Container(
+                    color: Color(0xffF2F2F2),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        SizedBox(height: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Destination',
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Color(0xffBDBDBD),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              getTrip['pickUp'].toString(),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Trip Duration : ',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              data['tripDuration'].toString(),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Trip Cost : ',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              data['total'].toString(),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff24414D),
+                                  fontWeight: FontWeight.w600),
+                              // textAlign: TextAlign.left,
+                            ),
+                          ],
+                        ),
+                      ],
+                    )),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.all(10),
+                            child: RoundedRaisedButton(
+                              // circleborderRadius: 10,
+                              title: "Confirm",
+                              titleColor: Colors.white,
+                              buttonColor: Color(0xff24414D),
+                              onPress: () async {
+                                // getTrip = data;
+                                Get.back();
+                                Get.back();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    notifyListeners();
+  }
+
 }
